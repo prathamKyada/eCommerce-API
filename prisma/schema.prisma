@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model company {
+  id              Int               @id @default(autoincrement())
+  company_name    String?
+  product_details product_details[]
+}
+
+model product_category {
+  id                    Int                    @id @default(autoincrement())
+  product_category_name String?
+  product_details       product_details[]
+  product_sub_category  product_sub_category[]
+}
+
+model product_sub_category {
+  id                        Int               @id @default(autoincrement())
+  product_category          product_category? @relation(fields: [product_category_id], references: [id])
+  product_category_id       Int
+  product_sub_category_name String?
+  product_details           product_details[]
+}
+
+model product_details {
+  id                      Int                   @id @default(autoincrement())
+  product_name            String?
+  product_image_url       String?
+  product_description     String?
+  product_price           String?
+  company                 company?              @relation(fields: [company_id], references: [id])
+  company_id              Int?
+  product_category        product_category?     @relation(fields: [product_category_id], references: [id])
+  product_category_id     Int?
+  product_sub_category    product_sub_category? @relation(fields: [product_sub_category_id], references: [id])
+  product_sub_category_id Int?
+  cart_details            cart_details[]
+}
+
+model registration_details {
+  id             Int      @id @default(autoincrement())
+  full_name      String
+  email_id       String   @unique
+  user_name      String   @unique
+  password       String
+  date_of_birth  DateTime
+  contact_number String
+}
+
+model cart_details {
+  id              Int              @id @default(autoincrement())
+  product_details product_details? @relation(fields: [product_id], references: [id])
+  product_id      Int
+  price           Int
+  quantity        Int
+  total_amount    Int
+  buy_now         buy_now[]
+  userId          Int?
+  userAddressId   Int?
+  user_address    user_address?    @relation(fields: [userAddressId], references: [id])
+
+  @@unique([product_id, userId])
+}
+
+model buy_now {
+  id           Int           @id @default(autoincrement())
+  cart_details cart_details? @relation(fields: [cart_id], references: [id])
+  cart_id      Int
+  total_amount Int
+}
+
+model user_address {
+  id           Int            @id @default(autoincrement())
+  house_number String
+  society_name String
+  landmark     String
+  pincode      Int
+  state        String
+  city         String
+  cart_details cart_details[]
+}
